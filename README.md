@@ -36,13 +36,16 @@ lbu include /etc/init.d/
 ```
 apk add wireguard-tools wireguard-tools-openrc iptables
 ```
+
+### 5. Создаем ключи
+```
 mkdir -p /etc/wireguard
 cd /etc/wireguard
 umask 077
 wg genkey | tee privatekey | wg pubkey > publickey
+```
 
-
-### Создаем /etc/wireguard/wg0.conf:
+### 6. Создаем /etc/wireguard/wg0.conf:
 ```
 [Interface]
 Address = 10.8.1.1/24
@@ -52,23 +55,23 @@ PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o 
 PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 ```
 
-### Редактируем /etc/sysctl.conf:
+### 7. Разрешаем перенаправление пекетов. Редактируем /etc/sysctl.conf:
 ```
 net.ipv4.ip_forward = 1
 sysctl -p
 ```
 
-### Создай символическую ссылку:
+### 8. Создаем символическую ссылку:
 ```
 ln -s /etc/init.d/wg-quick /etc/init.d/wg-quick.wg0
 ```
 
-### Автозарузка:
+### 9. Включаем автозагрузку:
 ```
 rc-update add wg-quick.wg0
 ```
 
-### Управление:
+### 10. Команды управления:
 ```
 rc-service wg-quick.wg0 start
 rc-service wg-quick.wg0 stop
@@ -76,7 +79,17 @@ rc-service wg-quick.wg0 restart
 rc-service wg-quick.wg0 status
 ```
 
-Проверка WireGuard:
+### 11. Проверка WireGuard:
 ```
 wg show
+```
+
+### 12. Для сохрания коммита в постоянную память Alpine используем команду
+```
+lbu commit
+```
+
+### 13. Перезапускаем и перепроверяем
+```
+reboot
 ```
