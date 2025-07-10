@@ -42,28 +42,41 @@ umask 077
 wg genkey | tee privatekey | wg pubkey > publickey
 
 
-/etc/wireguard/wg0.conf:
+### Создаем /etc/wireguard/wg0.conf:
+```
 [Interface]
 Address = 10.8.1.1/24
 ListenPort = 2021
 PrivateKey = <содержимое файла privatekey>
 PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+```
 
-
-/etc/sysctl.conf:
+### Редактируем /etc/sysctl.conf:
+```
 net.ipv4.ip_forward = 1
 sysctl -p
+```
 
-
-Создай символическую ссылку:
+### Создай символическую ссылку:
+```
 ln -s /etc/init.d/wg-quick /etc/init.d/wg-quick.wg0
-автозарузка:
+```
+
+### Автозарузка:
+```
 rc-update add wg-quick.wg0
-управление:
+```
+
+### Управление:
+```
 rc-service wg-quick.wg0 start
 rc-service wg-quick.wg0 stop
 rc-service wg-quick.wg0 restart
 rc-service wg-quick.wg0 status
+```
 
+Проверка WireGuard:
+```
 wg show
+```
